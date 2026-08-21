@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nguyễn Quang Anh - Magical Starry Bio</title>
+    <title>Nguyễn Quang Anh - Official Bio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -87,8 +87,8 @@
     <!-- Sparkling Stars Canvas Background -->
     <canvas id="stars-canvas"></canvas>
 
-    <!-- Thẻ Audio trỏ trực tiếp đến file music.mp3 cùng thư mục -->
-    <audio id="bg-music" loop>
+    <!-- Thẻ Audio tự động phát và lặp lại -->
+    <audio id="bg-music" autoplay loop preload="auto">
         <source src="music.mp3" type="audio/mp3">
         Trình duyệt của bạn không hỗ trợ phát file nhạc này.
     </audio>
@@ -103,15 +103,15 @@
                     <i class="fa-solid fa-star text-amber-300 animate-spin" style="animation-duration: 6s;"></i> Starry Profile
                 </span>
 
-                <!-- Nút Bật/Tắt nhạc nền -->
-                <button id="music-toggle" onclick="toggleMusic()" class="bg-purple-600/30 hover:bg-purple-600/50 border border-purple-400/40 px-3 py-1.5 rounded-full flex items-center gap-2 text-xs font-semibold backdrop-blur-md transition-all">
-                    <div id="wave-container" class="flex items-end gap-0.5 h-4 paused">
+                <!-- Nút Bật/Tắt nhạc nền phụ trợ -->
+                <button id="music-toggle" onclick="toggleMusic()" class="bg-purple-600/30 hover:bg-purple-600/50 border border-purple-400/40 px-3 py-1.5 rounded-full flex items-center gap-2 text-xs font-semibold backdrop-blur-md transition-all cursor-pointer">
+                    <div id="wave-container" class="flex items-end gap-0.5 h-4">
                         <div class="music-bar rounded-full"></div>
                         <div class="music-bar rounded-full"></div>
                         <div class="music-bar rounded-full"></div>
                         <div class="music-bar rounded-full"></div>
                     </div>
-                    <span id="music-status">Phát Nhạc</span>
+                    <span id="music-status">Tắt Nhạc</span>
                 </button>
             </div>
 
@@ -233,12 +233,37 @@
         </div>
     </div>
 
-    <!-- Script điều khiển âm thanh và hiệu ứng ngôi sao -->
+    <!-- Script xử lý tự động phát nhạc & hiệu ứng -->
     <script>
         const music = document.getElementById('bg-music');
         const waveContainer = document.getElementById('wave-container');
         const musicStatus = document.getElementById('music-status');
-        let isPlaying = false;
+        let isPlaying = true;
+
+        // Cố gắng tự động phát ngay khi trang tải xong
+        window.addEventListener('DOMContentLoaded', () => {
+            music.volume = 1.0;
+            music.play().then(() => {
+                waveContainer.classList.remove('paused');
+                musicStatus.textContent = 'Tắt Nhạc';
+            }).catch(error => {
+                console.log("Trình duyệt chặn autoplay, sẽ phát ngay khi có tương tác đầu tiên:", error);
+                isPlaying = false;
+                waveContainer.classList.add('paused');
+                musicStatus.textContent = 'Phát Nhạc';
+            });
+        });
+
+        // Nếu trình duyệt chặn ở lần truy cập đầu, tự động kích hoạt phát nhạc ngay khi người dùng chạm/click bất cứ đâu trên màn hình
+        document.body.addEventListener('click', function unlockAudio() {
+            if (!isPlaying) {
+                music.play().then(() => {
+                    waveContainer.classList.remove('paused');
+                    musicStatus.textContent = 'Tắt Nhạc';
+                    isPlaying = true;
+                });
+            }
+        }, { once: true });
 
         function toggleMusic() {
             if (isPlaying) {
@@ -249,8 +274,6 @@
                 music.play().then(() => {
                     waveContainer.classList.remove('paused');
                     musicStatus.textContent = 'Tắt Nhạc';
-                }).catch(e => {
-                    console.log("Trình duyệt chặn phát nhạc tự động:", e);
                 });
             }
             isPlaying = !isPlaying;
